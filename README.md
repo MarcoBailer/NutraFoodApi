@@ -13,5 +13,8 @@
 ## Funcionalidades
 - motor de busca por alimentos brasileiros, saparados por fabricantes, fastfood e supermercados. Totalizando uma gama de cerca de 70 mil informações.
 
+## Extra
+-Scripts em python estão sendo utilizados para fazer a coleta de informações.
+
 ## Banco
 - SQLite
