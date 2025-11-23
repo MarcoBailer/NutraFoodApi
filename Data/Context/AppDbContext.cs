@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Nutra.Models;
 
-namespace Nutra.Models;
+namespace Nutra.Data.Context;
 
 public partial class AppDbContext : DbContext
 {
@@ -15,27 +16,30 @@ public partial class AppDbContext : DbContext
     {
     }
 
-    public virtual DbSet<Fabricante> Fabricantes { get; set; }
-
+    public virtual DbSet<Fabricantes> Fabricantes { get; set; }
     public virtual DbSet<FastFood> FastFoods { get; set; }
-
     public virtual DbSet<Tbca> Tbcas { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlite("Data Source=Data/alimentos.db");
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder.UseSqlite("Data Source=Data/alimentos.db");
+        }
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Fabricante>(entity =>
+        modelBuilder.Entity<Fabricantes>(entity =>
         {
             entity
-                .HasNoKey()
                 .ToTable("fabricantes");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnName("rowid");
 
             entity.Property(e => e.EnergiaKcal).HasColumnName("Energia_kcal");
             entity.Property(e => e.EnergiaKj).HasColumnName("Energia_kj");
-            entity.Property(e => e.Fabricante1).HasColumnName("Fabricante");
+            entity.Property(e => e.Fabricante).HasColumnName("Fabricante");
             entity.Property(e => e.GorduraMonoinsaturada).HasColumnName("Gordura_Monoinsaturada");
             entity.Property(e => e.GorduraPoliinsaturada).HasColumnName("Gordura_Poliinsaturada");
             entity.Property(e => e.GorduraSaturada).HasColumnName("Gordura_Saturada");
@@ -45,8 +49,9 @@ public partial class AppDbContext : DbContext
         modelBuilder.Entity<FastFood>(entity =>
         {
             entity
-                .HasNoKey()
                 .ToTable("fast_food");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnName("rowid");
 
             entity.Property(e => e.EnergiaKcal).HasColumnName("Energia_kcal");
             entity.Property(e => e.EnergiaKj).HasColumnName("Energia_kj");
@@ -59,8 +64,9 @@ public partial class AppDbContext : DbContext
         modelBuilder.Entity<Tbca>(entity =>
         {
             entity
-                .HasNoKey()
                 .ToTable("tbca");
+            entity.HasKey(e => e.Código);
+            entity.Property(e => e.Código).HasColumnName("Código");
 
             entity.Property(e => e.AlfaTocoferolVitaminaEMg).HasColumnName("Alfa-tocoferol_Vitamina_E_mg");
             entity.Property(e => e.AçúcarDeAdiçãoG).HasColumnName("Açúcar_de_adição_g");

@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Nutra.Models;
+using Nutra.Data.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
