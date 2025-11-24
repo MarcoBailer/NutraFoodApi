@@ -3,34 +3,24 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Nutra.Models;
 
-namespace Nutra.Data.Context;
+namespace Nutra.Data;
 
-public partial class AppDbContext : DbContext
+public partial class AlimentosContext : DbContext
 {
-    public AppDbContext()
-    {
-    }
-
-    public AppDbContext(DbContextOptions<AppDbContext> options)
+    public AlimentosContext(DbContextOptions<AlimentosContext> options)
         : base(options)
     {
     }
 
-    public virtual DbSet<Fabricantes> Fabricantes { get; set; }
-    public virtual DbSet<FastFood> FastFoods { get; set; }
-    public virtual DbSet<Tbca> Tbcas { get; set; }
+    public virtual DbSet<Fabricante> Fabricantes { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
-        {
-            optionsBuilder.UseSqlite("Data Source=Data/alimentos.db");
-        }
-    }
+    public virtual DbSet<FastFood> FastFoods { get; set; }
+
+    public virtual DbSet<Tbca> Tbcas { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Fabricantes>(entity =>
+        modelBuilder.Entity<Fabricante>(entity =>
         {
             entity
                 .ToTable("fabricantes");
@@ -39,7 +29,7 @@ public partial class AppDbContext : DbContext
 
             entity.Property(e => e.EnergiaKcal).HasColumnName("Energia_kcal");
             entity.Property(e => e.EnergiaKj).HasColumnName("Energia_kj");
-            entity.Property(e => e.Fabricante).HasColumnName("Fabricante");
+            entity.Property(e => e.Fabricante1).HasColumnName("Fabricante");
             entity.Property(e => e.GorduraMonoinsaturada).HasColumnName("Gordura_Monoinsaturada");
             entity.Property(e => e.GorduraPoliinsaturada).HasColumnName("Gordura_Poliinsaturada");
             entity.Property(e => e.GorduraSaturada).HasColumnName("Gordura_Saturada");
@@ -65,8 +55,8 @@ public partial class AppDbContext : DbContext
         {
             entity
                 .ToTable("tbca");
-            entity.HasKey(e => e.Código);
-            entity.Property(e => e.Código).HasColumnName("Código");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnName("rowid");
 
             entity.Property(e => e.AlfaTocoferolVitaminaEMg).HasColumnName("Alfa-tocoferol_Vitamina_E_mg");
             entity.Property(e => e.AçúcarDeAdiçãoG).HasColumnName("Açúcar_de_adição_g");

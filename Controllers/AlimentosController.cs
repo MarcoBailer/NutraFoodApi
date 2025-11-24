@@ -1,21 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Nutra.Data.Context;
+using Nutra.Data;
 using Nutra.Models;
 
 [ApiController]
 [Route("api/[controller]")]
 public class AlimentosController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly AlimentosContext _context;
 
-    public AlimentosController(AppDbContext context)
+    public AlimentosController(AlimentosContext context)
     {
         _context = context;
     }
 
     [HttpGet("fabricante/alimento/{alimento_fabricante}")]
-    public async Task<ActionResult<PaginatedResult<Fabricantes>>> BuscarAlimentosFabricantesPorNome(
+    public async Task<ActionResult<PaginatedResult<Fabricante>>> BuscarAlimentosFabricantesPorNome(
     string alimento_fabricante,
     [FromQuery] int pageNumber = 1,
     [FromQuery] int pageSize = 10)
@@ -30,7 +30,7 @@ public class AlimentosController : ControllerBase
         var query = alimentosEncontrados.Where(a => a.Produto != null && a.Produto.Contains(alimento_fabricante));
 
         var totalCount = await query.CountAsync();
-        
+
         var items = await query
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
@@ -41,7 +41,7 @@ public class AlimentosController : ControllerBase
             return NotFound("Nenhum alimento encontrado com os termos informados.");
         }
 
-        var result = new PaginatedResult<Fabricantes>
+        var result = new PaginatedResult<Fabricante>
         {
             PageNumber = pageNumber,
             PageSize = pageSize,

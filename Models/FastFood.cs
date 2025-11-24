@@ -6,37 +6,37 @@ namespace Nutra.Models;
 public partial class FastFood
 {
     public int Id { get; set; }
-    public string Fabricante { get; set; } = string.Empty;
+    public string? Fabricante { get; set; }
 
-    public string Produto { get; set; } = string.Empty;
+    public string? Produto { get; set; }
 
-    public string Porcao { get; set; } = string.Empty;
+    public string? Porcao { get; set; }
 
-    public string EnergiaKcal { get; set; } = string.Empty;
+    public string? EnergiaKcal { get; set; }
 
-    public string EnergiaKj { get; set; } = string.Empty;
+    public string? EnergiaKj { get; set; }
 
-    public string Proteinas { get; set; } = string.Empty;
+    public string? Proteinas { get; set; }
 
-    public string Carboidratos { get; set; } = string.Empty;
+    public string? Carboidratos { get; set; }
 
-    public string Acucar { get; set; } = string.Empty;
+    public string? Acucar { get; set; }
 
-    public string Gorduras { get; set; } = string.Empty;
+    public string? Gorduras { get; set; }
 
-    public string GorduraSaturada { get; set; } = string.Empty;
+    public string? GorduraSaturada { get; set; }
 
-    public string GorduraPoliinsaturada { get; set; } = string.Empty;
+    public string? GorduraPoliinsaturada { get; set; }
 
-    public string GorduraMonoinsaturada { get; set; } = string.Empty;
+    public string? GorduraMonoinsaturada { get; set; }
 
-    public string GorduraTrans { get; set; } = string.Empty;
+    public string? GorduraTrans { get; set; }
 
-    public string Colesterol { get; set; } = string.Empty;
+    public string? Colesterol { get; set; }
 
-    public string Fibras { get; set; } = string.Empty;
+    public string? Fibras { get; set; }
 
-    public string Sodio { get; set; } = string.Empty;
+    public string? Sodio { get; set; }
 
-    public string Potassio { get; set; } = string.Empty;
+    public string? Potassio { get; set; }
 }

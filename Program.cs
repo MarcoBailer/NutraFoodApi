@@ -1,22 +1,23 @@
 using Microsoft.EntityFrameworkCore;
-using Nutra.Data.Context;
+using Nutra.Data;
+using Nutra.Interfaces;
+using Nutra.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = "Data Source=Data/fabricante_alimentos.db";
-builder.Services.AddDbContext<AppDbContext>(options =>
+var connectionString = "Data Source=Data/alimentos.db";
+builder.Services.AddDbContext<AlimentosContext>(options =>
     options.UseSqlite(connectionString));
 
-// Add services to the container.
+builder.Services.AddScoped<IBusca, BuscaService>();
+
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
