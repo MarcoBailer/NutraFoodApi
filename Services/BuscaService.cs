@@ -3,13 +3,14 @@ using Nutra.Data;
 using Nutra.Dtos;
 using Nutra.Helper;
 using Nutra.Interfaces;
+using Nutra.Models;
 
 namespace Nutra.Services
 {
     public class BuscaService : IBusca
     {
         private readonly AlimentosContext _context;
-        public BuscaService(AlimentosContext context) 
+        public BuscaService(AlimentosContext context)
         {
             _context = context;
         }
@@ -18,15 +19,40 @@ namespace Nutra.Services
             if (string.IsNullOrWhiteSpace(termo)) return new List<AlimentoResumoDto>();
 
             termo = termo.ToLower();
-            var resultadoFinal = new List<AlimentoResumoDto>();
 
-            var rawTbca = await _context.Tbcas
+            var taskTbca = _context.Tbcas
                 .AsNoTracking()
                 .Where(t => t.Nome != null && t.Nome.ToLower().Contains(termo))
                 .Take(20)
                 .ToListAsync();
 
-            resultadoFinal.AddRange(rawTbca.Select(t => new AlimentoResumoDto
+            var taskFab = _context.Fabricantes
+                .AsNoTracking()
+                .Where(f => f.Produto != null && f.Produto.ToLower().Contains(termo))
+                .Take(20)
+                .ToListAsync();
+
+            var taskFast = _context.FastFoods
+                .AsNoTracking()
+                .Where(ff => ff.Produto != null && ff.Produto.ToLower().Contains(termo))
+                .Take(10)
+                .ToListAsync();
+
+            await Task.WhenAll(taskTbca, taskFab, taskFast);
+
+            var resultadoFinal = new List<AlimentoResumoDto>();
+
+            resultadoFinal.AddRange(taskTbca.Result.Select(MapTbcaToDto));
+            resultadoFinal.AddRange(taskFab.Result.Select(MapFabricanteToDto));
+            resultadoFinal.AddRange(taskFast.Result.Select(MapFastFoodToDto));
+
+            return resultadoFinal.OrderBy(a => a.Nome.Length).ToList();
+
+        }
+
+        private AlimentoResumoDto MapTbcaToDto(Tbca t)
+        {
+            return new AlimentoResumoDto
             {
                 Id = t.Id,
                 Nome = t.Nome,
@@ -83,15 +109,12 @@ namespace Nutra.Services
                     Poliinsaturadas = Conversor.LimparEConverter(t.ÁcidosGraxosPoliinsaturadosG),
                     Monoinsaturadas = Conversor.LimparEConverter(t.ÁcidosGraxosMonoinsaturadosG),
                 }
-            }));
+            };
+        }
 
-            var rawFab = await _context.Fabricantes
-                .AsNoTracking()
-                .Where(f => f.Produto != null && f.Produto.ToLower().Contains(termo))
-                .Take(20)
-                .ToListAsync();
-
-            resultadoFinal.AddRange(rawFab.Select(f => new AlimentoResumoDto
+        private AlimentoResumoDto MapFabricanteToDto(Fabricante f)
+        {
+            return new AlimentoResumoDto
             {
                 Id = f.Id,
                 Nome = f.Produto ?? "Desconhecido",
@@ -120,17 +143,13 @@ namespace Nutra.Services
                     ColesterolMg = Conversor.LimparEConverter(f.Colesterol),
                     Monoinsaturadas = Conversor.LimparEConverter(f.GorduraMonoinsaturada),
                     Poliinsaturadas = Conversor.LimparEConverter(f.GorduraPoliinsaturada),
-                    Trans = Conversor.LimparEConverter(f.GorduraTrans),
                 }
-            }));
+            };
+        }
 
-            var rawFast = await _context.FastFoods
-                .AsNoTracking()
-                .Where(ff => ff.Produto != null && ff.Produto.ToLower().Contains(termo))
-                .Take(10)
-                .ToListAsync();
-
-            resultadoFinal.AddRange(rawFast.Select(ff => new AlimentoResumoDto
+        private AlimentoResumoDto MapFastFoodToDto(FastFood ff)
+        {
+            return new AlimentoResumoDto
             {
                 Id = ff.Id,
                 Nome = ff.Produto ?? "Desconhecido",
@@ -159,11 +178,8 @@ namespace Nutra.Services
                     ColesterolMg = Conversor.LimparEConverter(ff.Colesterol),
                     Monoinsaturadas = Conversor.LimparEConverter(ff.GorduraMonoinsaturada),
                     Poliinsaturadas = Conversor.LimparEConverter(ff.GorduraPoliinsaturada),
-                    Trans = Conversor.LimparEConverter(ff.GorduraTrans),
                 }
-            }));
-
-            return resultadoFinal.OrderBy(x => x.Nome.Length).ToList();
+            };
         }
     }
 }
