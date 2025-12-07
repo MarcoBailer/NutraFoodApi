@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using Nutra.Data;
 using Nutra.Dtos;
-using Nutra.Helper;
 using Nutra.Interfaces;
 using Nutra.Models;
 
@@ -9,10 +9,10 @@ namespace Nutra.Services
 {
     public class BuscaService : IBusca
     {
-        private readonly AlimentosContext _context;
-        public BuscaService(AlimentosContext context)
+        private readonly IDbContextFactory<AlimentosContext> _contextFactory;
+        public BuscaService(IDbContextFactory<AlimentosContext> contextFactory)
         {
-            _context = context;
+            _contextFactory = contextFactory;
         }
         public async Task<List<AlimentoResumoDto>> BuscaAlimentoAsync(string termo)
         {
@@ -20,31 +20,62 @@ namespace Nutra.Services
 
             termo = termo.ToLower();
 
-            var taskTbca = _context.Tbcas
-                .AsNoTracking()
-                .Where(t => t.Nome != null && t.Nome.ToLower().Contains(termo))
-                .Take(20)
-                .ToListAsync();
+            var resultadoFinal = new List<AlimentoResumoDto>();
 
-            var taskFab = _context.Fabricantes
-                .AsNoTracking()
-                .Where(f => f.Produto != null && f.Produto.ToLower().Contains(termo))
-                .Take(20)
-                .ToListAsync();
+            var taskTbca = Task.Run(async () =>
+            {
+                using var context = await _contextFactory.CreateDbContextAsync();
 
-            var taskFast = _context.FastFoods
-                .AsNoTracking()
-                .Where(ff => ff.Produto != null && ff.Produto.ToLower().Contains(termo))
-                .Take(10)
-                .ToListAsync();
+                var dados = await context.Tbcas
+                    .AsNoTracking()
+                    .Where(t => t.Nome != null && t.Nome.ToLower().Contains(termo))
+                    .Take(20)
+                    .ToListAsync();
+
+                return dados.Select(MapTbcaToDto);
+            });
+
+            var taskFab = Task.Run(async () =>
+            {
+                using var context = await _contextFactory.CreateDbContextAsync();
+                var dados = await context.Fabricantes
+                    .AsNoTracking()
+                    .Where(f => f.Produto != null && f.Produto.ToLower().Contains(termo))
+                    .Take(10)
+                    .ToListAsync();
+
+                return dados.Select(MapFabricanteToDto);
+            });
+
+            var taskFast = Task.Run(async () =>
+            {
+                using var context = await _contextFactory.CreateDbContextAsync();
+                var dados = await context.FastFoods
+                    .AsNoTracking()
+                    .Where(ff => ff.Produto != null && ff.Produto.ToLower().Contains(termo))
+                    .Take(10)
+                    .ToListAsync();
+
+                return dados.Select(MapFastFoodToDto);
+            });
+
+            var taskGenerico = Task.Run(async () =>
+            {
+                using var context = await _contextFactory.CreateDbContextAsync();
+                var dados = await context.Genericos
+                    .AsNoTracking()
+                    .Where(g => g.Produto != null && g.Produto.ToLower().Contains(termo))
+                    .Take(10)
+                    .ToListAsync();
+                return dados.Select(MapGenericoToDto);
+            });
 
             await Task.WhenAll(taskTbca, taskFab, taskFast);
 
-            var resultadoFinal = new List<AlimentoResumoDto>();
-
-            resultadoFinal.AddRange(taskTbca.Result.Select(MapTbcaToDto));
-            resultadoFinal.AddRange(taskFab.Result.Select(MapFabricanteToDto));
-            resultadoFinal.AddRange(taskFast.Result.Select(MapFastFoodToDto));
+            resultadoFinal.AddRange(taskTbca.Result);
+            resultadoFinal.AddRange(taskFab.Result);
+            resultadoFinal.AddRange(taskFast.Result);
+            resultadoFinal.AddRange(taskGenerico.Result);
 
             return resultadoFinal.OrderBy(a => a.Nome.Length).ToList();
 
@@ -56,7 +87,7 @@ namespace Nutra.Services
             {
                 Id = t.Id,
                 Nome = t.Nome,
-                NomeCientifico = t.NomeCientífico ?? "Desconhecido",
+                NomeCientifico = t.NomeCientifico ?? "Desconhecido",
                 MarcaFabricante = t.Marca,
                 Grupo = t.Grupo ?? "Desconhecido",
                 Fonte = "TBCA",
@@ -64,85 +95,85 @@ namespace Nutra.Services
                 {
                     EnergiaKcal = t.EnergiaKcal ?? 0,
                     EnergiaKJ = t.EnergiaKJ ?? 0,
-                    Proteina = Conversor.LimparEConverter(t.ProteínaG),
-                    CarboDisponivel = Conversor.LimparEConverter(t.CarboidratoDisponívelG),
-                    Fibras = Conversor.LimparEConverter(t.FibraAlimentarG),
-                    Acucar = Conversor.LimparEConverter(t.AçúcarDeAdiçãoG),
-                    LipidiosG = Conversor.LimparEConverter(t.LipídiosG),
-                    Umidade = Conversor.LimparEConverter(t.UmidadeG),
-                    CarboTotal = Conversor.LimparEConverter(t.CarboidratoTotalG),
-                    AlcoolG = Conversor.LimparEConverter(t.ÁlcoolG),
+                    Proteina = t.ProteinaG ?? 0,
+                    CarboDisponivel = t.CarboidratoDisponivelG ?? 0,
+                    Fibras = t.FibraAlimentarG ?? 0,
+                    Acucar = t.AcucarDeAdicaoG ?? 0,
+                    LipidiosG = t.LipidiosG ?? 0,
+                    Umidade = t.UmidadeG ?? 0,
+                    CarboTotal = t.CarboidratoTotalG ?? 0,
+                    AlcoolG = t.AlcoolG ?? 0,
                 },
                 Minerais = new()
                 {
-                    ManganesMg = Conversor.LimparEConverter(t.ManganêsMg),
-                    MagnesioMg = Conversor.LimparEConverter(t.MagnésioMg),
-                    FosforoMg = Conversor.LimparEConverter(t.FósforoMg),
-                    FerroMg = Conversor.LimparEConverter(t.FerroMg),
-                    NiacinaMg = Conversor.LimparEConverter(t.NiacinaMg),
-                    CalcioMg = Conversor.LimparEConverter(t.CálcioMg),
-                    PotassioMg = Conversor.LimparEConverter(t.PotássioMg),
-                    SelenioMcg = Conversor.LimparEConverter(t.SelênioMcg),
-                    SodioMg = Conversor.LimparEConverter(t.SódioMg),
-                    ZincoMg = Conversor.LimparEConverter(t.ZincoMg),
-                    CobreMg = Conversor.LimparEConverter(t.CobreMg),
-                    CinzasG = Conversor.LimparEConverter(t.CinzasG),
+                    ManganesMg = t.ManganesMg ?? 0,
+                    MagnesioMg = t.MagnesioMg ?? 0,
+                    FosforoMg = t.FosforoMg ?? 0,
+                    FerroMg = t.FerroMg ?? 0,
+                    NiacinaMg = t.NiacinaMg ?? 0,
+                    CalcioMg = t.CalcioMg ?? 0,
+                    PotassioMg = t.PotassioMg ?? 0,
+                    SelenioMcg = t.SelenioMcg ?? 0,
+                    SodioMg = t.SodioMg ?? 0,
+                    ZincoMg = t.ZincoMg ?? 0,
+                    CobreMg = t.CobreMg ?? 0,
+                    CinzasG = t.CinzasG ?? 0,
                 },
                 Vitaminas = new()
                 {
-                    VitaminaDMcg = Conversor.LimparEConverter(t.VitaminaDMcg),
-                    VitaminaARaeMcg = Conversor.LimparEConverter(t.VitaminaARaeMcg),
-                    VitaminaAReMcg = Conversor.LimparEConverter(t.VitaminaAReMcg),
-                    VitaminaCMg = Conversor.LimparEConverter(t.VitaminaCMg),
-                    VitaminaB12Mcg = Conversor.LimparEConverter(t.VitaminaB12Mcg),
-                    VitaminaB6Mg = Conversor.LimparEConverter(t.VitaminaB6Mg),
-                    RiboflavinaMg = Conversor.LimparEConverter(t.RiboflavinaMg),
-                    TiaminaMg = Conversor.LimparEConverter(t.TiaminaMg),
-                    AlfaTocoferolVitaminaEMg = Conversor.LimparEConverter(t.AlfaTocoferolVitaminaEMg),
+                    VitaminaDMcg = t.VitaminaDMcg ?? 0,
+                    VitaminaARaeMcg = t.VitaminaARaeMcg ?? 0,
+                    VitaminaAReMcg = t.VitaminaAReMcg ?? 0,
+                    VitaminaCMg = t.VitaminaCMg ?? 0,
+                    VitaminaB12Mcg = t.VitaminaB12Mcg ?? 0,
+                    VitaminaB6Mg = t.VitaminaB6Mg ?? 0,
+                    RiboflavinaMg = t.RiboflavinaMg ?? 0,
+                    TiaminaMg = t.TiaminaMg ?? 0,
+                    AlfaTocoferolVitaminaEMg = t.AlfaTocoferolVitaminaEMg ?? 0,
                 },
                 Gorduras = new()
                 {
-                    Totais = Conversor.LimparEConverter(t.LipídiosG),
-                    Saturadas = Conversor.LimparEConverter(t.ÁcidosGraxosSaturadosG),
-                    Trans = Conversor.LimparEConverter(t.ÁcidosGraxosTransG),
-                    ColesterolMg = Conversor.LimparEConverter(t.ColesterolMg),
-                    Poliinsaturadas = Conversor.LimparEConverter(t.ÁcidosGraxosPoliinsaturadosG),
-                    Monoinsaturadas = Conversor.LimparEConverter(t.ÁcidosGraxosMonoinsaturadosG),
+                    Totais = t.LipidiosG ?? 0,
+                    Saturadas = t.AcidosGraxosSaturadosG ?? 0,
+                    Trans = t.AcidosGraxosTransG ?? 0,
+                    ColesterolMg = t.ColesterolMg ?? 0,
+                    Poliinsaturadas = t.AcidosGraxosPoliinsaturadosG ?? 0,
+                    Monoinsaturadas = t.AcidosGraxosMonoinsaturadosG ?? 0,
                 }
             };
         }
 
-        private AlimentoResumoDto MapFabricanteToDto(Fabricante f)
+        private AlimentoResumoDto MapFabricanteToDto(Fabricantes f)
         {
             return new AlimentoResumoDto
             {
                 Id = f.Id,
                 Nome = f.Produto ?? "Desconhecido",
-                MarcaFabricante = f.Fabricante1 ?? "Genérico",
-                PorcaoReferencia = f.Porcao ?? "Não informado",
+                MarcaFabricante = f.Fabricante ?? "Genérico",
+                PorcaoReferencia = f.Porcao ?? 0,
                 Fonte = "Fabricantes",
                 Macros = new()
                 {
-                    EnergiaKcal = Conversor.LimparEConverter(f.EnergiaKcal),
-                    EnergiaKJ = Conversor.LimparEConverter(f.EnergiaKj),
-                    Proteina = Conversor.LimparEConverter(f.Proteinas),
-                    CarboDisponivel = Conversor.LimparEConverter(f.Carboidratos),
-                    LipidiosG = Conversor.LimparEConverter(f.Gorduras),
-                    Acucar = Conversor.LimparEConverter(f.Acucar),
-                    Fibras = Conversor.LimparEConverter(f.Fibras),
+                    EnergiaKcal = f.EnergiaKcal ?? 0,
+                    EnergiaKJ = f.EnergiaKj ?? 0,
+                    Proteina = f.Proteinas ?? 0,
+                    CarboDisponivel = f.Carboidratos ?? 0,
+                    LipidiosG = f.Gorduras ?? 0,
+                    Acucar = f.Acucar ?? 0,
+                    Fibras = f.Fibras ?? 0,
                 },
                 Minerais = new()
                 {
-                    SodioMg = Conversor.LimparEConverter(f.Sodio),
-                    PotassioMg = Conversor.LimparEConverter(f.Potassio),
+                    SodioMg = f.Sodio ?? 0,
+                    PotassioMg = f.Potassio ?? 0,
                 },
                 Gorduras = new()
                 {
-                    Totais = Conversor.LimparEConverter(f.Gorduras),
-                    Saturadas = Conversor.LimparEConverter(f.GorduraSaturada),
-                    ColesterolMg = Conversor.LimparEConverter(f.Colesterol),
-                    Monoinsaturadas = Conversor.LimparEConverter(f.GorduraMonoinsaturada),
-                    Poliinsaturadas = Conversor.LimparEConverter(f.GorduraPoliinsaturada),
+                    Totais = f.Gorduras ?? 0,
+                    Saturadas = f.GorduraSaturada ?? 0,
+                    ColesterolMg = f.Colesterol ?? 0,
+                    Monoinsaturadas = f.GorduraMonoinsaturada ?? 0,
+                    Poliinsaturadas = f.GorduraPoliinsaturada ?? 0,
                 }
             };
         }
@@ -153,31 +184,66 @@ namespace Nutra.Services
             {
                 Id = ff.Id,
                 Nome = ff.Produto ?? "Desconhecido",
-                PorcaoReferencia = ff.Porcao ?? "Não informado",
+                PorcaoReferencia = ff.Porcao ?? 0,
                 MarcaFabricante = ff.Fabricante ?? "Restaurante",
                 Fonte = "FastFood",
                 Macros = new()
                 {
-                    EnergiaKcal = Conversor.LimparEConverter(ff.EnergiaKcal),
-                    EnergiaKJ = Conversor.LimparEConverter(ff.EnergiaKj),
-                    Proteina = Conversor.LimparEConverter(ff.Proteinas),
-                    CarboDisponivel = Conversor.LimparEConverter(ff.Carboidratos),
-                    LipidiosG = Conversor.LimparEConverter(ff.Gorduras),
-                    Acucar = Conversor.LimparEConverter(ff.Acucar),
-                    Fibras = Conversor.LimparEConverter(ff.Fibras),
+                    EnergiaKcal = ff.EnergiaKcal ?? 0,
+                    EnergiaKJ = ff.EnergiaKj ?? 0,
+                    Proteina = ff.Proteinas ?? 0,
+                    CarboDisponivel = ff.Carboidratos ?? 0,
+                    LipidiosG = ff.Gorduras ?? 0,
+                    Acucar = ff.Acucar ?? 0,
+                    Fibras = ff.Fibras ?? 0,
                 },
                 Minerais = new()
                 {
-                    SodioMg = Conversor.LimparEConverter(ff.Sodio),
-                    PotassioMg = Conversor.LimparEConverter(ff.Potassio),
+                    SodioMg = ff.Sodio ?? 0,
+                    PotassioMg = ff.Potassio ?? 0,
                 },
                 Gorduras = new()
                 {
-                    Totais = Conversor.LimparEConverter(ff.Gorduras),
-                    Saturadas = Conversor.LimparEConverter(ff.GorduraSaturada),
-                    ColesterolMg = Conversor.LimparEConverter(ff.Colesterol),
-                    Monoinsaturadas = Conversor.LimparEConverter(ff.GorduraMonoinsaturada),
-                    Poliinsaturadas = Conversor.LimparEConverter(ff.GorduraPoliinsaturada),
+                    Totais = ff.Gorduras ?? 0,
+                    Saturadas = ff.GorduraSaturada ?? 0,
+                    ColesterolMg = ff.Colesterol ?? 0,
+                    Monoinsaturadas = ff.GorduraMonoinsaturada ?? 0,
+                    Poliinsaturadas = ff.GorduraPoliinsaturada ?? 0,
+                }
+            };
+        }
+
+        private AlimentoResumoDto MapGenericoToDto(Genericos g)
+        {
+            return new AlimentoResumoDto
+            {
+                Id = g.Id,
+                Nome = g.Produto ?? "Desconhecido",
+                PorcaoReferencia = g.Porcao ?? 0,
+                MarcaFabricante = "Genérico",
+                Fonte = "Genéricos",
+                Macros = new()
+                {
+                    EnergiaKcal = g.EnergiaKcal ?? 0,
+                    EnergiaKJ = g.EnergiaKj ?? 0,
+                    Proteina = g.Proteinas ?? 0,
+                    CarboDisponivel = g.Carboidratos ?? 0,
+                    LipidiosG = g.Gorduras ?? 0,
+                    Acucar = g.Acucar ?? 0,
+                    Fibras = g.Fibras ?? 0,
+                },
+                Minerais = new()
+                {
+                    SodioMg = g.Sodio ?? 0,
+                    PotassioMg = g.Potassio ?? 0,
+                },
+                Gorduras = new()
+                {
+                    Totais = g.Gorduras ?? 0,
+                    Saturadas = g.GorduraSaturada ?? 0,
+                    ColesterolMg = g.Colesterol ?? 0,
+                    Monoinsaturadas = g.GorduraMonoinsaturada ?? 0,
+                    Poliinsaturadas = g.GorduraPoliinsaturada ?? 0,
                 }
             };
         }

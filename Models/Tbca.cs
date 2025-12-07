@@ -6,89 +6,46 @@ namespace Nutra.Models;
 public partial class Tbca
 {
     public int Id { get; set; }
-    public string? Código { get; set; }
-
     public string? Nome { get; set; }
-
-    public string? NomeCientífico { get; set; }
-
+    public string? NomeCientifico { get; set; }
     public string? Grupo { get; set; }
-
     public string? Marca { get; set; }
-
-    public string? AlfaTocoferolVitaminaEMg { get; set; }
-
-    public string? AçúcarDeAdiçãoG { get; set; }
-
-    public string? CarboidratoDisponívelG { get; set; }
-
-    public string? CarboidratoTotalG { get; set; }
-
-    public string? CinzasG { get; set; }
-
-    public string? CobreMg { get; set; }
-
-    public string? ColesterolMg { get; set; }
-
-    public string? CálcioMg { get; set; }
-
+    public double? AlfaTocoferolVitaminaEMg { get; set; }
+    public double? AcucarDeAdicaoG { get; set; }
+    public double? CarboidratoDisponivelG { get; set; }
+    public double? CarboidratoTotalG { get; set; }
+    public double? CinzasG { get; set; }
+    public double? CobreMg { get; set; }
+    public double? ColesterolMg { get; set; }
+    public double? CalcioMg { get; set; }
     public double? EnergiaKJ { get; set; }
-
     public double? EnergiaKcal { get; set; }
-
-    public string? EquivalenteDeFolatoMcg { get; set; }
-
-    public string? FerroMg { get; set; }
-
-    public string? FibraAlimentarG { get; set; }
-
-    public string? FósforoMg { get; set; }
-
-    public string? LipídiosG { get; set; }
-
-    public string? MagnésioMg { get; set; }
-
-    public string? ManganêsMg { get; set; }
-
-    public string? NiacinaMg { get; set; }
-
-    public string? PotássioMg { get; set; }
-
-    public string? ProteínaG { get; set; }
-
-    public string? RiboflavinaMg { get; set; }
-
-    public string? SalDeAdiçãoG { get; set; }
-
-    public string? SelênioMcg { get; set; }
-
-    public string? SódioMg { get; set; }
-
-    public string? TiaminaMg { get; set; }
-
-    public string? UmidadeG { get; set; }
-
-    public string? VitaminaARaeMcg { get; set; }
-
-    public string? VitaminaAReMcg { get; set; }
-
-    public string? VitaminaB12Mcg { get; set; }
-
-    public string? VitaminaB6Mg { get; set; }
-
-    public string? VitaminaCMg { get; set; }
-
-    public string? VitaminaDMcg { get; set; }
-
-    public string? ZincoMg { get; set; }
-
-    public string? ÁcidosGraxosMonoinsaturadosG { get; set; }
-
-    public string? ÁcidosGraxosPoliinsaturadosG { get; set; }
-
-    public string? ÁcidosGraxosSaturadosG { get; set; }
-
-    public string? ÁcidosGraxosTransG { get; set; }
-
-    public string? ÁlcoolG { get; set; }
+    public double? EquivalenteDeFolatoMcg { get; set; }
+    public double? FerroMg { get; set; }
+    public double? FibraAlimentarG { get; set; }
+    public double? FosforoMg { get; set; }
+    public double? LipidiosG { get; set; }
+    public double? MagnesioMg { get; set; }
+    public double? ManganesMg { get; set; }
+    public double? NiacinaMg { get; set; }
+    public double? PotassioMg { get; set; }
+    public double? ProteinaG { get; set; }
+    public double? RiboflavinaMg { get; set; }
+    public double? SalDeAdicaoG { get; set; }
+    public double? SelenioMcg { get; set; }
+    public double? SodioMg { get; set; }
+    public double? TiaminaMg { get; set; }
+    public double? UmidadeG { get; set; }
+    public double? VitaminaARaeMcg { get; set; }
+    public double? VitaminaAReMcg { get; set; }
+    public double? VitaminaB12Mcg { get; set; }
+    public double? VitaminaB6Mg { get; set; }
+    public double? VitaminaCMg { get; set; }
+    public double? VitaminaDMcg { get; set; }
+    public double? ZincoMg { get; set; }
+    public double? AcidosGraxosMonoinsaturadosG { get; set; }
+    public double? AcidosGraxosPoliinsaturadosG { get; set; }
+    public double? AcidosGraxosSaturadosG { get; set; }
+    public double? AcidosGraxosTransG { get; set; }
+    public double? AlcoolG { get; set; }
 }

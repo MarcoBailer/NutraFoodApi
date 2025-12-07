@@ -5,9 +5,11 @@ using Nutra.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = "Data Source=Data/alimentos.db";
-builder.Services.AddDbContext<AlimentosContext>(options =>
-    options.UseSqlite(connectionString));
+var connectionString = builder.Configuration
+    ["ConnectionStrings:DefaultConnection"];
+
+builder.Services.AddDbContextFactory<AlimentosContext>(options =>
+    options.UseSqlServer(connectionString));
 
 builder.Services.AddScoped<IBusca, BuscaService>();
 

@@ -8,7 +8,7 @@ public class AlimentoResumoDto
     public string MarcaFabricante { get; set; } = string.Empty;
     public string Grupo { get; set; } = string.Empty;
     public string Fonte { get; set; } = string.Empty;
-    public string PorcaoReferencia { get; set; } = "100g";
+    public double PorcaoReferencia { get; set; }
 
     public MacrosInfo Macros { get; set; } = new();
 

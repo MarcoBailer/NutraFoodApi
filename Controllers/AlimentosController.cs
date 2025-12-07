@@ -15,7 +15,7 @@ public class AlimentosController : ControllerBase
     }
 
     [HttpGet("fabricante/alimento/{alimento_fabricante}")]
-    public async Task<ActionResult<PaginatedResult<Fabricante>>> BuscarAlimentosFabricantesPorNome(
+    public async Task<ActionResult<PaginatedResult<Fabricantes>>> BuscarAlimentosFabricantesPorNome(
     string alimento_fabricante,
     [FromQuery] int pageNumber = 1,
     [FromQuery] int pageSize = 10)
@@ -41,7 +41,7 @@ public class AlimentosController : ControllerBase
             return NotFound("Nenhum alimento encontrado com os termos informados.");
         }
 
-        var result = new PaginatedResult<Fabricante>
+        var result = new PaginatedResult<Fabricantes>
         {
             PageNumber = pageNumber,
             PageSize = pageSize,

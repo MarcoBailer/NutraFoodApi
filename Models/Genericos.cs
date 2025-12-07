@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace Nutra.Models;
 
-namespace Nutra.Models;
-
-public class Fabricantes
+public class Genericos
 {
     public int Id { get; set; }
-    public string? Fabricante { get; set; }
+    public string? CategoriaPrincipal { get; set; }
+    public string? SubCategoria { get; set; }
     public string? Produto { get; set; }
     public double? Porcao { get; set; }
     public double? EnergiaKcal { get; set; }
