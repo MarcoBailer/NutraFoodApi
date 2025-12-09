@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Nutra.Data;
-using Nutra.Dtos;
 using Nutra.Interfaces;
 using Nutra.Models;
+using Nutra.Models.Dtos;
 
 namespace Nutra.Services
 {

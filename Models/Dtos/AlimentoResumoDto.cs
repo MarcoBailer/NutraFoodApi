@@ -1,4 +1,4 @@
-﻿namespace Nutra.Dtos;
+﻿namespace Nutra.Models.Dtos;
 
 public class AlimentoResumoDto
 {
