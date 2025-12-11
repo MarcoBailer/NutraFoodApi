@@ -11,6 +11,12 @@ public class PerfilNutricional
 
     [ForeignKey("UserId")]
     public ApplicationUser User { get; set; }
+    public int MetaNutricionalAtualId { get; set; }
+
+    [ForeignKey("MetaNutricionalAtualId")]
+    public MetaNutricional MetaNutricional { get; set; }
+
+    public virtual ICollection<RegistroBiometrico> HistoricoMedidas { get; set; }
     public DateTime DataNascimento { get; set; }
     public EGeneroBiologico Genero { get; set; }
     public double AlturaCm { get; set; }

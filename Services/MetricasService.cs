@@ -1,13 +1,12 @@
 ﻿using Nutra.Enum;
 using Nutra.Interfaces;
-using Nutra.Models.Dtos;
 using Nutra.Models.Usuario;
 
 namespace Nutra.Services;
 
 public class MetricasService : IMetricas
 {
-    public BiometriaDto CalcularMetas(ApplicationUser user)
+    public MetaNutricional CalcularMetas(ApplicationUser user)
     {
         // 1. Calcula Idade
         var idade = DateTime.Now.Year - user.PerfilAtivo.DataNascimento.Year;
@@ -37,7 +36,7 @@ public class MetricasService : IMetricas
 
         // 5. Divide os Macros (Exemplo balanceado: 30% Prot, 40% Carb, 30% Gord)
         // Obs: 1g Prot = 4kcal, 1g Carb = 4kcal, 1g Gord = 9kcal
-        return new BiometriaDto
+        return new MetaNutricional
         {
             CaloriasDiarias = Math.Round(caloriasMeta),
             ProteinaG = Math.Round((caloriasMeta * 0.30) / 4),
