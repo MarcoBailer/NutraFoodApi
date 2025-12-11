@@ -1,6 +1,6 @@
 ﻿using Nutra.Enum;
 
-namespace Nutra.Models;
+namespace Nutra.Models.RegraNutricional;
 
 public class PreferenciaAlimentar
 {

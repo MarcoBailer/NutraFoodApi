@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Nutra.Models;
+using Nutra.Models.Alimentos;
 
 namespace Nutra.Data;
 

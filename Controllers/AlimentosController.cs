@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Nutra.Data;
-using Nutra.Models;
+using Nutra.Models.Alimentos;
 
 [ApiController]
 [Route("api/[controller]")]

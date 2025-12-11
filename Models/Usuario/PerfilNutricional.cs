@@ -1,11 +1,16 @@
 ﻿using Nutra.Enum;
+using Nutra.Models.RegraNutricional;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Nutra.Models;
+namespace Nutra.Models.Usuario;
 
 public class PerfilNutricional
 {
     public int Id { get; set; }
-    public int UserId { get; set; }
+    public string UserId { get; set; }
+
+    [ForeignKey("UserId")]
+    public ApplicationUser User { get; set; }
     public DateTime DataNascimento { get; set; }
     public EGeneroBiologico Genero { get; set; }
     public double AlturaCm { get; set; }

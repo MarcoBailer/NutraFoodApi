@@ -1,4 +1,4 @@
-﻿namespace Nutra.Models;
+﻿namespace Nutra.Models.RegraNutricional;
 
 public class RestricaoAlimentar
 {

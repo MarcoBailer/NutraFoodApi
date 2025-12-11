@@ -1,5 +1,5 @@
-﻿using Nutra.Models;
-using Nutra.Models.Dtos;
+﻿using Nutra.Models.Dtos;
+using Nutra.Models.Usuario;
 
 namespace Nutra.Interfaces;
 
