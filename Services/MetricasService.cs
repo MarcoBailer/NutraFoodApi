@@ -39,9 +39,9 @@ public class MetricasService : IMetricas
         return new MetaNutricional
         {
             CaloriasDiarias = Math.Round(caloriasMeta),
-            ProteinaG = Math.Round((caloriasMeta * 0.30) / 4),
-            CarboidratoG = Math.Round((caloriasMeta * 0.40) / 4),
-            GorduraG = Math.Round((caloriasMeta * 0.30) / 9)
+            ProteinasDiarias = Math.Round((caloriasMeta * 0.30) / 4),
+            CarboidratosDiarios = Math.Round((caloriasMeta * 0.40) / 4),
+            GordurasDiarias = Math.Round((caloriasMeta * 0.30) / 9)
         };
     }
 }
