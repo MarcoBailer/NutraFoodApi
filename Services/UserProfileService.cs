@@ -17,6 +17,7 @@ public class UserProfileService : IUserProfile
 
     public async Task<PerfilNutricional> PostPerfilNutricional(PerfilNutricional perfilNutricional)
     {
+        // TODO: Implementar a lógica para salvar o perfil nutricional no banco de dados
         return perfilNutricional;
     }
 }

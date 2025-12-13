@@ -1,9 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Nutra.Models.Alimentos;
+using Nutra.Models.Usuario;
 
 namespace Nutra.Data;
 
-public class AlimentosContext : DbContext
+public class AlimentosContext : IdentityDbContext<ApplicationUser>
 {
     public AlimentosContext(DbContextOptions<AlimentosContext> options)
         : base(options)

@@ -14,7 +14,7 @@ public class MetaNutricional
     public double AguaDiaria { get; set; }
     public double FibraDiaria { get; set; }
 
-    //Vitaminas diarias ou semanais 
+    // TODO: Vitaminas diarias ou semanais 
 
     public int PerfilNutricionalId { get; set; }
     public PerfilNutricional PerfilNutricional { get; set; }

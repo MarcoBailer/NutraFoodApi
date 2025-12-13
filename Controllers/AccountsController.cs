@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Nutra.Interfaces;
 using Nutra.Models.Dtos.Registro;
-using Nutra.Models.Usuario;
 
 namespace Nutra.Controllers;
 
@@ -22,6 +20,9 @@ public class AccountsController : ControllerBase
     {
         try
         {
+            if (newUser == null)
+                throw new ArgumentNullException(nameof(newUser), "O objeto newUser não pode ser nulo.");
+
             var user = await _account.Register(newUser);
             return Ok(user);
         }
@@ -36,6 +37,9 @@ public class AccountsController : ControllerBase
     {
         try
         {
+            if (loginModel == null)
+                throw new ArgumentNullException(nameof(loginModel), "O objeto loginModel não pode ser nulo.");
+
             var login = await _account.Login(loginModel);
             return Ok(login);
         }

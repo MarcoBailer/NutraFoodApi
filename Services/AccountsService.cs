@@ -26,11 +26,6 @@ namespace Nutra.Services
         {
             try
             {
-                if (newUser == null)
-                {
-                    throw new ArgumentNullException(nameof(newUser), "O objeto newUser não pode ser nulo.");
-                }
-
                 var userByEmail = _userManager.FindByEmailAsync(newUser.Email);
                 if (userByEmail.Result != null)
                 {

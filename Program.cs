@@ -48,7 +48,9 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddScoped<IBusca, BuscaService>();
-builder.Services.AddScoped<IMetricas, MetricasService>();
+builder.Services.AddScoped<ICalculadoraNutricional, CalculadoraNutricionalService>();
+builder.Services.AddScoped<IUserProfile, UserProfileService>();
+builder.Services.AddScoped<IAccounts, AccountsService>();
 
 
 builder.Services.AddControllers();
