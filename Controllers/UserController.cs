@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Nutra.Interfaces;
-using Nutra.Models.Usuario;
+using Nutra.Models.Dtos;
+using System.Security.Claims;
 
 namespace Nutra.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class UserController : ControllerBase
 {
     private readonly IUserProfile _userProfile;
@@ -16,10 +19,16 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("perfil-nutricional")]
-    public async Task<IActionResult> PostPerfilNutricional([FromBody] PerfilNutricional perfilNutricional)
+    public async Task<IActionResult> PostPerfilNutricional([FromBody] PerfilNutricionalDto perfilNutricional)
     {
         try
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("Token inválido: ID do usuário não encontrado.");
+            }
+            perfilNutricional.UserId = userId;
             var perfil = await _userProfile.PostPerfilNutricional(perfilNutricional);
             return Ok(perfil);
         }

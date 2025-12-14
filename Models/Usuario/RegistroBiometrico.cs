@@ -5,7 +5,7 @@ namespace Nutra.Models.Usuario;
 public class RegistroBiometrico
 {
     public int Id { get; set; }
-    public DateTime DataRegistro { get; set; } = DateTime.UtcNow;
+    public DateTime Data { get; set; }
 
     public double PesoKg { get; set; }
     public double? PercentualGordura { get; set; }

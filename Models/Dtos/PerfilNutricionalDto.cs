@@ -1,21 +1,12 @@
 ﻿using Nutra.Enum;
 using Nutra.Models.RegraNutricional;
-using System.ComponentModel.DataAnnotations.Schema;
+using Nutra.Models.Usuario;
 
-namespace Nutra.Models.Usuario;
+namespace Nutra.Models.Dtos;
 
-public class PerfilNutricional
+public class PerfilNutricionalDto
 {
-    public int Id { get; set; }
     public string UserId { get; set; }
-
-    [ForeignKey("UserId")]
-    public ApplicationUser User { get; set; }
-    public int? MetaNutricionalAtualId { get; set; }
-
-    [ForeignKey("MetaNutricionalAtualId")]
-    public MetaNutricional? MetaNutricional { get; set; }
-
     public double AlturaCm { get; set; }
     public double PesoAtualKg { get; set; }
     public double? PercentualGorduraCorporal { get; set; }
@@ -32,8 +23,7 @@ public class PerfilNutricional
     public ETipoObjetivo Objetivo { get; set; }
     public ENivelAtividadeFisica NivelAtividade { get; set; }
     public EPreferenciaAlimentar PreferenciaDieta { get; set; }
-    public virtual ICollection<RestricaoAlimentar> RestricoesAlimentares { get; set; } = new List<RestricaoAlimentar>();
-    public virtual ICollection<PreferenciaAlimentar>? PreferenciasAlimentares { get; set; } = new List<PreferenciaAlimentar>();
-    public virtual ICollection<RegistroBiometrico> HistoricoMedidas { get; set; }
-    public ICollection<PerfilEquipamento> EquipamentoDisponivel { get; set; }
+    public ICollection<RestricaoAlimentar> RestricoesAlimentares { get; set; }
+    public ICollection<PreferenciaAlimentar>? PreferenciasAlimentares { get; set; }
+    public List<EEquipamentoDisponivel> EquipamentosIds { get; set; }
 }

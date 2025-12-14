@@ -15,7 +15,7 @@ public class AlimentosController : ControllerBase
     }
 
     [HttpGet("fabricante/alimento/{alimento_fabricante}")]
-    public async Task<ActionResult<PaginatedResult<Fabricantes>>> BuscarAlimentosFabricantesPorNome(
+    public async Task<ActionResult<PaginatedResultDto<Fabricantes>>> BuscarAlimentosFabricantesPorNome(
     string alimento_fabricante,
     [FromQuery] int pageNumber = 1,
     [FromQuery] int pageSize = 10)
@@ -41,7 +41,7 @@ public class AlimentosController : ControllerBase
             return NotFound("Nenhum alimento encontrado com os termos informados.");
         }
 
-        var result = new PaginatedResult<Fabricantes>
+        var result = new PaginatedResultDto<Fabricantes>
         {
             PageNumber = pageNumber,
             PageSize = pageSize,
@@ -54,7 +54,7 @@ public class AlimentosController : ControllerBase
     }
 
     [HttpGet("fastfood/alimento/{nome_fastfood}")]
-    public async Task<ActionResult<PaginatedResult<FastFood>>> BuscarAlimentosFastFoodPorNome(
+    public async Task<ActionResult<PaginatedResultDto<FastFood>>> BuscarAlimentosFastFoodPorNome(
     string nome_fastfood,
     [FromQuery] int pageNumber = 1,
     [FromQuery] int pageSize = 10)
@@ -78,7 +78,7 @@ public class AlimentosController : ControllerBase
         {
             return NotFound("Nenhum alimento encontrado com os termos informados.");
         }
-        var result = new PaginatedResult<FastFood>
+        var result = new PaginatedResultDto<FastFood>
         {
             PageNumber = pageNumber,
             PageSize = pageSize,
@@ -91,7 +91,7 @@ public class AlimentosController : ControllerBase
     }
 
     [HttpGet("tbca/alimento/{nome_tbca}")]
-    public async Task<ActionResult<PaginatedResult<Tbca>>> BuscarAlimentosTbcaPorNome(
+    public async Task<ActionResult<PaginatedResultDto<Tbca>>> BuscarAlimentosTbcaPorNome(
     string nome_tbca,
     [FromQuery] int pageNumber = 1,
     [FromQuery] int pageSize = 10)
@@ -122,7 +122,7 @@ public class AlimentosController : ControllerBase
             return NotFound("Nenhum alimento encontrado com os termos informados.");
         }
 
-        var result = new PaginatedResult<Tbca>
+        var result = new PaginatedResultDto<Tbca>
         {
             PageNumber = pageNumber,
             PageSize = pageSize,

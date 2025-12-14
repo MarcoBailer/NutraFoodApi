@@ -1,7 +1,9 @@
-﻿namespace Nutra.Models.RegraNutricional;
+﻿using Nutra.Enum;
+
+namespace Nutra.Models.RegraNutricional;
 
 public class RestricaoAlimentar
 {
     public int Id { get; set; }
-    public string CompostoOrganico { get; set; } = string.Empty; // e.g., Lactose, Glúten
+    public EAlergico CompostoOrganico { get; set; } // e.g., Lactose, Glúten
 }

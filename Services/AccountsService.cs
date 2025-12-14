@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Nutra.Interfaces;
 using Nutra.Models.Dtos.Registro;
@@ -60,15 +59,22 @@ namespace Nutra.Services
             }
         }
 
-        public async Task<AuthResponseDto> Login (LoginModelDto login)
+        public async Task<AuthResponseDto> Login(LoginModelDto login)
         {
-            var user = await _userManager.FindByEmailAsync(login.Email);
-            if(user == null || !await _userManager.CheckPasswordAsync(user, login.Password))
+            try
             {
-                throw new UnauthorizedAccessException("Usuário ou senha inválidos.");
+                var user = await _userManager.FindByEmailAsync(login.Email);
+                if (user == null || !await _userManager.CheckPasswordAsync(user, login.Password))
+                {
+                    throw new UnauthorizedAccessException("Usuário ou senha inválidos.");
+                }
+                var token = await GenerateJwtToken(user);
+                return token;
             }
-            var token = await GenerateJwtToken(user);
-            return token;
+            catch (Exception ex)
+            {
+                throw new Exception("Erro ao realizar login: " + ex.Message);
+            }
         }
 
         private async Task<AuthResponseDto> GenerateJwtToken(ApplicationUser user)
@@ -79,6 +85,7 @@ namespace Nutra.Services
 
             var authClaims = new List<Claim>
             {
+               new Claim(ClaimTypes.NameIdentifier, user.Id),
                new Claim(ClaimTypes.Name, user.UserName),
                new Claim(ClaimTypes.Email, user.Email),
                new Claim("canUseVoiceAssistant", canUseVoiceAssistant.ToString().ToLower()),

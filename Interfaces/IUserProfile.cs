@@ -1,9 +1,10 @@
-﻿using Nutra.Models.Usuario;
+﻿using Nutra.Models;
+using Nutra.Models.Dtos;
 
 namespace Nutra.Interfaces
 {
     public interface IUserProfile
     {
-        Task<PerfilNutricional> PostPerfilNutricional(PerfilNutricional perfilNutricional);
+        Task<RetornoPadrao> PostPerfilNutricional(PerfilNutricionalDto perfilNutricional);
     }
 }
