@@ -1,6 +1,5 @@
 ﻿using Nutra.Enum;
 using Nutra.Models.RegraNutricional;
-using Nutra.Models.Usuario;
 
 namespace Nutra.Models.Dtos;
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Nutra.Interfaces;
+using Nutra.Models;
 using Nutra.Models.Dtos.Registro;
 using Nutra.Models.Usuario;
 using System.IdentityModel.Tokens.Jwt;
@@ -21,7 +22,7 @@ namespace Nutra.Services
             _configuration = configuration;
         }
 
-        public async Task<ApplicationUser> Register(RegisterModelDto newUser)
+        public async Task<RetornoPadrao> Register(RegisterModelDto newUser)
         {
             try
             {
@@ -36,12 +37,15 @@ namespace Nutra.Services
                     throw new InvalidOperationException("Nome de usuário já cadastrado.");
                 }
 
+                var retorno = new RetornoPadrao();
+
                 var user = new ApplicationUser
                 {
                     UserName = newUser.Username,
                     Email = newUser.Email,
                     NomeCompleto = newUser.NomeCompleto,
                     CPF = newUser.CPF,
+                    PhoneNumber = newUser.PhoneNumber,
                     PerfilAtivo = null
                 };
 
@@ -51,7 +55,9 @@ namespace Nutra.Services
                     var errors = result.Errors.Select(e => e.Description);
                     throw new InvalidOperationException(string.Join("; ", errors));
                 }
-                return user;
+                retorno.Sucesso = true;
+                retorno.Mensagem = "Usuário registrado com sucesso.";
+                return retorno;
             }
             catch (Exception ex)
             {
