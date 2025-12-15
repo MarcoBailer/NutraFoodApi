@@ -1,20 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Nutra.Models;
+using Nutra.Data;
+using Nutra.Models.Alimentos;
 
 [ApiController]
 [Route("api/[controller]")]
 public class AlimentosController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly AlimentosContext _context;
 
-    public AlimentosController(AppDbContext context)
+    public AlimentosController(AlimentosContext context)
     {
         _context = context;
     }
 
     [HttpGet("fabricante/alimento/{alimento_fabricante}")]
-    public async Task<ActionResult<PaginatedResult<Fabricante>>> BuscarAlimentosFabricantesPorNome(
+    public async Task<ActionResult<PaginatedResultDto<Fabricantes>>> BuscarAlimentosFabricantesPorNome(
     string alimento_fabricante,
     [FromQuery] int pageNumber = 1,
     [FromQuery] int pageSize = 10)
@@ -29,7 +30,7 @@ public class AlimentosController : ControllerBase
         var query = alimentosEncontrados.Where(a => a.Produto != null && a.Produto.Contains(alimento_fabricante));
 
         var totalCount = await query.CountAsync();
-        
+
         var items = await query
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
@@ -40,7 +41,7 @@ public class AlimentosController : ControllerBase
             return NotFound("Nenhum alimento encontrado com os termos informados.");
         }
 
-        var result = new PaginatedResult<Fabricante>
+        var result = new PaginatedResultDto<Fabricantes>
         {
             PageNumber = pageNumber,
             PageSize = pageSize,
@@ -53,7 +54,7 @@ public class AlimentosController : ControllerBase
     }
 
     [HttpGet("fastfood/alimento/{nome_fastfood}")]
-    public async Task<ActionResult<PaginatedResult<FastFood>>> BuscarAlimentosFastFoodPorNome(
+    public async Task<ActionResult<PaginatedResultDto<FastFood>>> BuscarAlimentosFastFoodPorNome(
     string nome_fastfood,
     [FromQuery] int pageNumber = 1,
     [FromQuery] int pageSize = 10)
@@ -77,7 +78,7 @@ public class AlimentosController : ControllerBase
         {
             return NotFound("Nenhum alimento encontrado com os termos informados.");
         }
-        var result = new PaginatedResult<FastFood>
+        var result = new PaginatedResultDto<FastFood>
         {
             PageNumber = pageNumber,
             PageSize = pageSize,
@@ -90,7 +91,7 @@ public class AlimentosController : ControllerBase
     }
 
     [HttpGet("tbca/alimento/{nome_tbca}")]
-    public async Task<ActionResult<PaginatedResult<Tbca>>> BuscarAlimentosTbcaPorNome(
+    public async Task<ActionResult<PaginatedResultDto<Tbca>>> BuscarAlimentosTbcaPorNome(
     string nome_tbca,
     [FromQuery] int pageNumber = 1,
     [FromQuery] int pageSize = 10)
@@ -121,7 +122,7 @@ public class AlimentosController : ControllerBase
             return NotFound("Nenhum alimento encontrado com os termos informados.");
         }
 
-        var result = new PaginatedResult<Tbca>
+        var result = new PaginatedResultDto<Tbca>
         {
             PageNumber = pageNumber,
             PageSize = pageSize,
