@@ -1,4 +1,4 @@
-﻿namespace Nutra.Dtos;
+﻿namespace Nutra.Models.Dtos;
 
 public class AlimentoResumoDto
 {
@@ -7,7 +7,7 @@ public class AlimentoResumoDto
     public string NomeCientifico { get; set; } = string.Empty;
     public string MarcaFabricante { get; set; } = string.Empty;
     public string Grupo { get; set; } = string.Empty;
-    public string Fonte { get; set; } = string.Empty;
+    public string Fonte { get; set; } = string.Empty; // TBCA, Fabricante, Fast Food, Genérico.
     public double PorcaoReferencia { get; set; }
 
     public MacrosInfo Macros { get; set; } = new();

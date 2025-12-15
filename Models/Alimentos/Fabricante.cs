@@ -1,10 +1,9 @@
-﻿namespace Nutra.Models;
+﻿namespace Nutra.Models.Alimentos;
 
-public class Genericos
+public class Fabricantes
 {
     public int Id { get; set; }
-    public string? CategoriaPrincipal { get; set; }
-    public string? SubCategoria { get; set; }
+    public string? Fabricante { get; set; }
     public string? Produto { get; set; }
     public double? Porcao { get; set; }
     public double? EnergiaKcal { get; set; }

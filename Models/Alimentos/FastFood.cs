@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Nutra.Models;
+namespace Nutra.Models.Alimentos;
 
 public class FastFood
 {
