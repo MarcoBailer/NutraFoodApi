@@ -2,9 +2,9 @@
 
 public enum ENivelAtividadeFisica
 {
-    Sedentario,      // Fator 1.2
-    LevementeAtivo,  // Fator 1.375
-    ModeradamenteAtivo, // Fator 1.55
-    MuitoAtivo,      // Fator 1.725
-    ExtremamenteAtivo // Fator 1.9
+    Sedentario = 1,      // Fator 1.2
+    LevementeAtivo = 2,  // Fator 1.375
+    ModeradamenteAtivo = 3, // Fator 1.55
+    MuitoAtivo = 4,      // Fator 1.725
+    ExtremamenteAtivo = 5 // Fator 1.9
 }

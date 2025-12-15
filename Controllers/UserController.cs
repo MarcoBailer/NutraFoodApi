@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Nutra.Enum;
 using Nutra.Interfaces;
 using Nutra.Models.Dtos;
 using System.Security.Claims;
@@ -31,6 +32,20 @@ public class UserController : ControllerBase
             perfilNutricional.UserId = userId;
             var perfil = await _userProfile.PostPerfilNutricional(perfilNutricional);
             return Ok(perfil);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpPost("preferencia-alimentar/{id}/{tabela}/{afinidade}")]
+    public async Task<IActionResult> PostPreferenciaAlimentar(int id, ETipoTabela tabela, ETipoPreferencia afinidade)
+    {
+        try
+        {
+            var resultado = await _userProfile.PostPreferenciaAlimentar(id, tabela, afinidade);
+            return Ok(resultado);
         }
         catch (Exception ex)
         {

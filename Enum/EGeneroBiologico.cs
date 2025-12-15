@@ -2,6 +2,6 @@
 
 public enum EGeneroBiologico
 {
-    Masculino,
-    Feminino
+    Masculino = 1,
+    Feminino = 2
 }

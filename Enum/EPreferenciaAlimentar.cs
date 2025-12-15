@@ -2,8 +2,8 @@
 
 public enum EPreferenciaAlimentar
 {
-    Onivoro,
-    Vegetariano,
-    Vegano,
-    Pescatariano
+    Onivoro = 1,
+    Vegetariano = 2,
+    Vegano = 3,
+    Pescatariano = 4
 }

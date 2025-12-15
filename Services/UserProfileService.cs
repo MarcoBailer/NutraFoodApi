@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Nutra.Data;
+using Nutra.Enum;
 using Nutra.Interfaces;
 using Nutra.Models;
 using Nutra.Models.Dtos;
+using Nutra.Models.RegraNutricional;
 using Nutra.Models.Usuario;
 
 namespace Nutra.Services;
@@ -11,16 +13,19 @@ public class UserProfileService : IUserProfile
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ICalculadoraNutricional _calculadora;
+    private readonly IBusca _busca;
     private readonly AlimentosContext _context;
 
     public UserProfileService(UserManager<ApplicationUser> userManager,
         AlimentosContext context,
-        ICalculadoraNutricional calculadora
+        ICalculadoraNutricional calculadora,
+        IBusca busca
         )
     {
         _userManager = userManager;
         _context = context;
         _calculadora = calculadora;
+        _busca = busca;
     }
 
     public async Task<RetornoPadrao> PostPerfilNutricional(PerfilNutricionalDto perfil)
@@ -68,7 +73,6 @@ public class UserProfileService : IUserProfile
                 NivelAtividade = perfil.NivelAtividade,
                 PreferenciaDieta = perfil.PreferenciaDieta,
                 RestricoesAlimentares = perfil.RestricoesAlimentares,
-                PreferenciasAlimentares = perfil.PreferenciasAlimentares,
                 EquipamentoDisponivel = perfil.EquipamentosIds.Select(enumValue => new PerfilEquipamento { Equipamento = enumValue}).ToList(),
                 HistoricoMedidas = new List<RegistroBiometrico>()
                 {
@@ -102,5 +106,33 @@ public class UserProfileService : IUserProfile
             await transaction.RollbackAsync();
             throw;
         }
+    }
+
+    public async Task<RetornoPadrao> PostPreferenciaAlimentar(int id, ETipoTabela tabela, ETipoPreferencia afinidade)
+    {
+        var retorno = new RetornoPadrao();
+
+        var alimento = await _busca.BuscaAlimentoPorIdAsync(id, tabela);
+
+        if(alimento == null)
+        {
+            retorno.Sucesso = false;
+            retorno.Mensagem = "Alimento não encontrado.";
+            return retorno;
+        }
+
+        var preferencia = new PreferenciaAlimentar
+        {
+            AlimentoId = alimento.Id,
+            Tabela = tabela,
+            Tipo = afinidade
+        };
+
+        _context.PreferenciaAlimentar.Add(preferencia);
+        await _context.SaveChangesAsync();
+
+        retorno.Sucesso = true;
+        retorno.Mensagem = "Preferência alimentar registrada com sucesso.";
+        return retorno;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Nutra.Data;
+using Nutra.Enum;
 using Nutra.Interfaces;
 using Nutra.Models.Alimentos;
 using Nutra.Models.Dtos;
@@ -10,9 +11,11 @@ namespace Nutra.Services
     public class BuscaService : IBusca
     {
         private readonly IDbContextFactory<AlimentosContext> _contextFactory;
-        public BuscaService(IDbContextFactory<AlimentosContext> contextFactory)
+        private readonly AlimentosContext _context;
+        public BuscaService(IDbContextFactory<AlimentosContext> contextFactory, AlimentosContext context)
         {
             _contextFactory = contextFactory;
+            _context = context;
         }
         public async Task<List<AlimentoResumoDto>> BuscaAlimentoAsync(string termo)
         {
@@ -79,6 +82,55 @@ namespace Nutra.Services
 
             return resultadoFinal.OrderBy(a => a.Nome.Length).ToList();
 
+        }
+
+        public async Task<AlimentoResumoDto> BuscaAlimentoPorIdAsync(int id, ETipoTabela tabela)
+        {
+            AlimentoResumoDto? alimentoEncontrado = null;
+
+            switch (tabela)
+            {
+                case ETipoTabela.Tbcas:
+                    var tbca = await _context.Tbcas
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(x => x.Id == id);
+                    if (tbca != null)
+                    {
+                        alimentoEncontrado = MapTbcaToDto(tbca);
+                    }
+                    break;
+                case ETipoTabela.Fabricantes:
+                    var fabricante = await _context.Fabricantes
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(x => x.Id == id);
+                    if (fabricante != null)
+                    {
+                        alimentoEncontrado = MapFabricanteToDto(fabricante);
+                    }
+                    break;
+                case ETipoTabela.FastFoods:
+                    var fastFood = await _context.FastFoods
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(x => x.Id == id);
+                    if (fastFood != null)
+                    {
+                        alimentoEncontrado = MapFastFoodToDto(fastFood);
+                    }
+                    break;
+                case ETipoTabela.Genericos:
+                    var generico = await _context.Genericos
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(x => x.Id == id);
+                    if (generico != null)
+                    {
+                        alimentoEncontrado = MapGenericoToDto(generico);
+                    }
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(tabela), tabela, null);
+            }
+
+            return alimentoEncontrado;
         }
 
         private AlimentoResumoDto MapTbcaToDto(Tbca t)

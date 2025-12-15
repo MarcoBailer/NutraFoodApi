@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Nutra.Enum;
 using Nutra.Interfaces;
 
 namespace Nutra.Controllers;
@@ -14,7 +15,7 @@ public class BuscaController : ControllerBase
         _buscaService = busca;
     }
 
-    [HttpGet("{termo}")]
+    [HttpGet("BuscarTudo/{termo}")]
     public async Task<ActionResult> BuscarTudo(string termo)
     {
         if (string.IsNullOrWhiteSpace(termo) || termo.Length < 3)
@@ -25,5 +26,14 @@ public class BuscaController : ControllerBase
         var resultadoFinal = await _buscaService.BuscaAlimentoAsync(termo);
 
         return Ok(resultadoFinal);
+    }
+
+    [HttpGet("BuscarPorId/{id}/{tabela}")]
+    public async Task<ActionResult> BuscarPorId(int id, ETipoTabela tabela)
+    {
+        var alimento = await _buscaService.BuscaAlimentoPorIdAsync(id, tabela);
+        if (alimento == null)
+            return NotFound("Alimento não encontrado.");
+        return Ok(alimento);
     }
 }

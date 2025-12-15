@@ -2,8 +2,8 @@
 
 public enum ETipoObjetivo
 {
-    PerdaDeGordura,
-    Hipertrofia, // Ganho de Massa
-    Manutencao,
-    RecomposicaoCorporal // Perder gordura e ganhar massa
+    PerdaDeGordura = 1,
+    Hipertrofia = 2, // Ganho de Massa
+    Manutencao = 3,
+    RecomposicaoCorporal = 4// Perder gordura e ganhar massa
 }

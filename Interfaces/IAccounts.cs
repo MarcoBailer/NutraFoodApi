@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Nutra.Models;
+﻿using Nutra.Models;
 using Nutra.Models.Dtos.Registro;
-using Nutra.Models.Usuario;
 
 namespace Nutra.Interfaces
 {
