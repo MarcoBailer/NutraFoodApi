@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Nutra.Data;
 using Nutra.Enum;
 using Nutra.Interfaces;
@@ -80,19 +81,21 @@ public class UserProfileService : IUserProfile
                 },
             };
 
-            novoPerfil.HistoricoMedidas.Add(registroInicial);
-
             var metaCalculada = _calculadora.GerarMetaInicial(novoPerfil);
 
             novoPerfil.MetaNutricional = metaCalculada;
 
+            metaCalculada.PerfilNutricional = novoPerfil;
+
             _context.PerfilNutricional.Add(novoPerfil);
 
-            novoPerfil.MetaNutricionalAtualId = metaCalculada.Id;
-
-            _context.Entry(novoPerfil).Property(p => p.MetaNutricionalAtualId).IsModified = true;
-
             await _context.SaveChangesAsync();
+
+            if (novoPerfil.MetaNutricionalAtualId == null)
+            {
+                novoPerfil.MetaNutricionalAtualId = novoPerfil.MetaNutricional.Id;
+                await _context.SaveChangesAsync();
+            }
 
             await transaction.CommitAsync();
 
@@ -108,9 +111,19 @@ public class UserProfileService : IUserProfile
         }
     }
 
-    public async Task<RetornoPadrao> PostPreferenciaAlimentar(int id, ETipoTabela tabela, ETipoPreferencia afinidade)
+    public async Task<RetornoPadrao> PostPreferenciaAlimentar(string userId, int id, ETipoTabela tabela, ETipoPreferencia afinidade)
     {
         var retorno = new RetornoPadrao();
+
+        var perfil = await _context.PerfilNutricional
+            .FirstOrDefaultAsync(p => p.UserId == userId);
+
+        if(perfil == null)
+        {
+            retorno.Sucesso = false;
+            retorno.Mensagem = "Perfil nutricional não encontrado para o usuário.";
+            return retorno;
+        }
 
         var alimento = await _busca.BuscaAlimentoPorIdAsync(id, tabela);
 
@@ -123,6 +136,7 @@ public class UserProfileService : IUserProfile
 
         var preferencia = new PreferenciaAlimentar
         {
+            PerfilNutricionalId = perfil.Id,
             AlimentoId = alimento.Id,
             Tabela = tabela,
             Tipo = afinidade
