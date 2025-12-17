@@ -73,8 +73,23 @@ public class UserProfileService : IUserProfile
                 Objetivo = perfil.Objetivo,
                 NivelAtividade = perfil.NivelAtividade,
                 PreferenciaDieta = perfil.PreferenciaDieta,
-                RestricoesAlimentares = perfil.RestricoesAlimentares,
-                EquipamentoDisponivel = perfil.EquipamentosIds.Select(enumValue => new PerfilEquipamento { Equipamento = enumValue}).ToList(),
+                RestricoesAlimentares = perfil.RestricoesIds
+                    .Select(alergiaEnum => new RestricaoAlimentar
+                    {
+                        CompostoOrganico = alergiaEnum
+                    }).ToList(),
+                EquipamentoDisponivel = perfil.EquipamentosIds
+                    .Select(enumValue => new PerfilEquipamento
+                    { 
+                        Equipamento = enumValue
+                    }).ToList(),
+                PreferenciasAlimentares = perfil.Preferencias
+                    .Select(pref => new PreferenciaAlimentar
+                    {
+                        AlimentoId = pref.AlimentoId,
+                        Tabela = pref.Tabela,
+                        Tipo = pref.Tipo
+                    }).ToList(),
                 HistoricoMedidas = new List<RegistroBiometrico>()
                 {
                     registroInicial

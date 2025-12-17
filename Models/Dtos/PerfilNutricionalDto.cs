@@ -1,5 +1,4 @@
 ﻿using Nutra.Enum;
-using Nutra.Models.RegraNutricional;
 
 namespace Nutra.Models.Dtos;
 
@@ -22,7 +21,7 @@ public class PerfilNutricionalDto
     public ETipoObjetivo Objetivo { get; set; }
     public ENivelAtividadeFisica NivelAtividade { get; set; }
     public EPreferenciaAlimentar PreferenciaDieta { get; set; }
-    public ICollection<RestricaoAlimentar> RestricoesAlimentares { get; set; }
-    public ICollection<PreferenciaAlimentar>? PreferenciasAlimentares { get; set; }
+    public List<EAlergico> RestricoesIds { get; set; } = new List<EAlergico>();
+    public List<PreferenciaCadastroDto> Preferencias { get; set; } = new List<PreferenciaCadastroDto>();
     public List<EEquipamentoDisponivel> EquipamentosIds { get; set; }
 }
