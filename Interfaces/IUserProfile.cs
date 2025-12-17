@@ -7,6 +7,6 @@ namespace Nutra.Interfaces
     public interface IUserProfile
     {
         Task<RetornoPadrao> PostPerfilNutricional(PerfilNutricionalDto perfilNutricional);
-        Task<RetornoPadrao> PostPreferenciaAlimentar(int id, ETipoTabela tabela, ETipoPreferencia afinidade);
+        Task<RetornoPadrao> PostPreferenciaAlimentar(string userId, int id, ETipoTabela tabela, ETipoPreferencia afinidade);
     }
 }

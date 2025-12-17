@@ -44,7 +44,12 @@ public class UserController : ControllerBase
     {
         try
         {
-            var resultado = await _userProfile.PostPreferenciaAlimentar(id, tabela, afinidade);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("Token inválido: ID do usuário não encontrado.");
+            }
+            var resultado = await _userProfile.PostPreferenciaAlimentar(userId ,id, tabela, afinidade);
             return Ok(resultado);
         }
         catch (Exception ex)
