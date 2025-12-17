@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Nutra.Data;
 using Nutra.Enum;
 using Nutra.Interfaces;
@@ -72,27 +73,44 @@ public class UserProfileService : IUserProfile
                 Objetivo = perfil.Objetivo,
                 NivelAtividade = perfil.NivelAtividade,
                 PreferenciaDieta = perfil.PreferenciaDieta,
-                RestricoesAlimentares = perfil.RestricoesAlimentares,
-                EquipamentoDisponivel = perfil.EquipamentosIds.Select(enumValue => new PerfilEquipamento { Equipamento = enumValue}).ToList(),
+                RestricoesAlimentares = perfil.RestricoesIds
+                    .Select(alergiaEnum => new RestricaoAlimentar
+                    {
+                        CompostoOrganico = alergiaEnum
+                    }).ToList(),
+                EquipamentoDisponivel = perfil.EquipamentosIds
+                    .Select(enumValue => new PerfilEquipamento
+                    { 
+                        Equipamento = enumValue
+                    }).ToList(),
+                PreferenciasAlimentares = perfil.Preferencias
+                    .Select(pref => new PreferenciaAlimentar
+                    {
+                        AlimentoId = pref.AlimentoId,
+                        Tabela = pref.Tabela,
+                        Tipo = pref.Tipo
+                    }).ToList(),
                 HistoricoMedidas = new List<RegistroBiometrico>()
                 {
                     registroInicial
                 },
             };
 
-            novoPerfil.HistoricoMedidas.Add(registroInicial);
-
             var metaCalculada = _calculadora.GerarMetaInicial(novoPerfil);
 
             novoPerfil.MetaNutricional = metaCalculada;
 
+            metaCalculada.PerfilNutricional = novoPerfil;
+
             _context.PerfilNutricional.Add(novoPerfil);
 
-            novoPerfil.MetaNutricionalAtualId = metaCalculada.Id;
-
-            _context.Entry(novoPerfil).Property(p => p.MetaNutricionalAtualId).IsModified = true;
-
             await _context.SaveChangesAsync();
+
+            if (novoPerfil.MetaNutricionalAtualId == null)
+            {
+                novoPerfil.MetaNutricionalAtualId = novoPerfil.MetaNutricional.Id;
+                await _context.SaveChangesAsync();
+            }
 
             await transaction.CommitAsync();
 
@@ -108,9 +126,19 @@ public class UserProfileService : IUserProfile
         }
     }
 
-    public async Task<RetornoPadrao> PostPreferenciaAlimentar(int id, ETipoTabela tabela, ETipoPreferencia afinidade)
+    public async Task<RetornoPadrao> PostPreferenciaAlimentar(string userId, int id, ETipoTabela tabela, ETipoPreferencia afinidade)
     {
         var retorno = new RetornoPadrao();
+
+        var perfil = await _context.PerfilNutricional
+            .FirstOrDefaultAsync(p => p.UserId == userId);
+
+        if(perfil == null)
+        {
+            retorno.Sucesso = false;
+            retorno.Mensagem = "Perfil nutricional não encontrado para o usuário.";
+            return retorno;
+        }
 
         var alimento = await _busca.BuscaAlimentoPorIdAsync(id, tabela);
 
@@ -123,6 +151,7 @@ public class UserProfileService : IUserProfile
 
         var preferencia = new PreferenciaAlimentar
         {
+            PerfilNutricionalId = perfil.Id,
             AlimentoId = alimento.Id,
             Tabela = tabela,
             Tipo = afinidade
