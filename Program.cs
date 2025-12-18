@@ -10,6 +10,7 @@ using Nutra.Services;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+var myNextAppPolicy = "_myNextAppPolicy";
 
 var connectionString = builder.Configuration
     ["ConnectionStrings:DefaultConnection"];
@@ -47,6 +48,17 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
     };
 });
+
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: myNextAppPolicy,
+        policy => policy
+            .WithOrigins("http://localhost:3000", builder.Configuration["AppSettings:BaseUrlFront"])
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
+
 
 builder.Services.AddSwaggerGen(options =>
 {
