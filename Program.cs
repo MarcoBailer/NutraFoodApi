@@ -7,10 +7,13 @@ using Nutra.Data;
 using Nutra.Interfaces;
 using Nutra.Models.Usuario;
 using Nutra.Services;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 var myNextAppPolicy = "_myNextAppPolicy";
+
+var authority = "https://localhost:7047/";
 
 var connectionString = builder.Configuration
     ["ConnectionStrings:DefaultConnection"];
@@ -20,6 +23,8 @@ builder.Services.AddDbContextFactory<AlimentosContext>(options =>
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
+    // As regras de senha aqui são menos relevantes, pois a senha é gerida no Projeto A,
+    // mas vou manter para consistência do objeto User.
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;
     options.Password.RequireUppercase = true;
@@ -37,15 +42,55 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
+    options.Authority = authority;
+    options.RequireHttpsMetadata = false; // true em produção
+
     options.TokenValidationParameters = new TokenValidationParameters
     {
+        ValidateAudience = false,
         ValidateIssuer = true,
-        ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["JWT:Issuer"],
+        ValidIssuer = authority,
         ValidAudience = builder.Configuration["JWT:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
+        //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnTokenValidated = async context =>
+        {
+            var userManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<ApplicationUser>>();
+
+            var userIdExternal = context.Principal.FindFirstValue("sub");
+            var userEmail = context.Principal.FindFirstValue("email");
+            var userName = context.Principal.FindFirstValue("name") ?? userEmail;
+
+            if (!string.IsNullOrEmpty(userEmail))
+            {
+                var user = await userManager.FindByEmailAsync(userEmail);
+
+                if (user == null)
+                {
+                    user = new ApplicationUser
+                    {
+                        UserName = userName,
+                        Email = userEmail,
+                        NomeCompleto = userName,
+                        CPF = "",
+                        EmailConfirmed = true,
+                        SecurityStamp = Guid.NewGuid().ToString()
+                    };
+
+                    var result = await userManager.CreateAsync(user);
+
+                    if (!result.Succeeded)
+                    {
+                        context.Fail("Falha ao sincronizar usuário lcoal.");
+                    }
+                }
+            }
+        }
     };
 });
 
@@ -108,6 +153,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors(myNextAppPolicy);
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

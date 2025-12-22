@@ -1,51 +1,70 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Nutra.Interfaces;
+using Nutra.Models.Dtos;
 using Nutra.Models.Dtos.Registro;
+using Nutra.Models.Usuario;
+using System.Security.Claims;
 
 namespace Nutra.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class AccountsController : ControllerBase
 {
-    private readonly IAccounts _account;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public AccountsController(IAccounts account)
+    public AccountsController(UserManager<ApplicationUser> userManager)
     {
-        _account = account;
+        _userManager = userManager;
     }
 
-    [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterModelDto newUser)
+    /// <summary>
+    /// Front-end uses a token generated externally to see the user's profile information stored locally.
+    /// </summary>
+    /// <returns>An <see cref="IActionResult"/> containing the user's profile information if found; otherwise, a NotFound result
+    /// if the user does not exist.</returns>
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMyProfile()
     {
-        try
-        {
-            if (newUser == null)
-                throw new ArgumentNullException(nameof(newUser), "O objeto newUser não pode ser nulo.");
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var user = await _account.Register(newUser);
-            return Ok(user);
-        }
-        catch (Exception ex)
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null) return NotFound("Usuário não encontrado no contexto local.");
+
+        return Ok(new
         {
-            return BadRequest(ex.Message);
-        }
+            user.NomeCompleto,
+            user.Email,
+            user.CPF,
+        });
     }
 
-    [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginModelDto loginModel)
-    {
-        try
-        {
-            if (loginModel == null)
-                throw new ArgumentNullException(nameof(loginModel), "O objeto loginModel não pode ser nulo.");
 
-            var login = await _account.Login(loginModel);
-            return Ok(login);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+    /// <summary>
+    /// Update only profile data managed by Projeto B
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPut("update-profile")]
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto model)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null) return NotFound();
+
+        // Atualiza apenas dados que são responsabilidade do Projeto B
+        user.CPF = model.Cpf;
+        user.NomeCompleto = model.NomeCompleto;
+
+        var result = await _userManager.UpdateAsync(user);
+
+        if (result.Succeeded) return Ok(user);
+
+        return BadRequest(result.Errors);
     }
 }
