@@ -29,17 +29,42 @@ public class AccountsController : ControllerBase
     [HttpGet("me")]
     public async Task<IActionResult> GetMyProfile()
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+        var userEmail = User.FindFirstValue(ClaimTypes.Email) ?? User.FindFirstValue("email");
+        var userName = User.FindFirstValue(ClaimTypes.Name) ?? User.FindFirstValue("name");
 
-        var user = await _userManager.FindByIdAsync(userId);
+        if (string.IsNullOrEmpty(userEmail))
+        {
+            return Unauthorized("Token inválido: E-mail não encontrado nas claims.");
+        }
 
-        if (user == null) return NotFound("Usuário não encontrado no contexto local.");
+        var user = await _userManager.FindByEmailAsync(userEmail);
+
+        if (user == null)
+        {
+            user = new ApplicationUser
+            {
+                UserName = userEmail,
+                Email = userEmail,
+                NomeCompleto = userName ?? "Usuário Novo",
+                CPF = "", // Será preenchido depois
+                EmailConfirmed = true,
+                SecurityStamp = Guid.NewGuid().ToString()
+            };
+
+            var createResult = await _userManager.CreateAsync(user);
+            if (!createResult.Succeeded)
+            {
+                return BadRequest("Erro ao sincronizar usuário no banco local.");
+            }
+        }
 
         return Ok(new
         {
             user.NomeCompleto,
             user.Email,
             user.CPF,
+            Id = user.Id
         });
     }
 
